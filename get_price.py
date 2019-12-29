@@ -77,12 +77,16 @@ def cal_avg(price_list) :
 
 def get_gem_price():
 	#Return Gem price(float)
-	ua = UserAgent()
-	headers = {'User-Agent': ua.random}
-	url = r'https://steamcommunity.com/market/listings/753/753-Sack%20of%20Gems/render?start=0&count=10&currency=30&format=json'
-	req  = requests.get(url,headers=headers)
-	html = req.json()['results_html']
-	soup = BeautifulSoup(html,'html.parser')
-	price = soup.find('span',class_='market_listing_price market_listing_price_with_fee')
-	return strip_price(price.get_text())
+	try :
+		ua = UserAgent()
+		headers = {'User-Agent': ua.random}
+		url = r'https://steamcommunity.com/market/listings/753/753-Sack%20of%20Gems/render?start=0&count=10&currency=30&format=json'
+		req  = requests.get(url,headers=headers)
+		html = req.json()['results_html']
+		soup = BeautifulSoup(html,'html.parser')
+		price = soup.find('span',class_='market_listing_price market_listing_price_with_fee')
+		return strip_price(price.get_text())
+	except Exception as e :
+		print(e)
+		return -1
 

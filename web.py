@@ -1,8 +1,9 @@
 from get_price import *
 from flask import Flask,render_template,request
+import sys
+import os
 
-app =Flask(__name__)
-
+app=Flask(__name__)
 @app.route('/',methods=['GET'])
 def home():
 	return render_template('home.html')
@@ -21,4 +22,4 @@ def results():
 
 
 if __name__=='__main__':
-	app.run()
+	app.run(port='80')
