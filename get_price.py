@@ -7,8 +7,10 @@ import requests
 def load_driver():
     options = webdriver.ChromeOptions()
     options.add_extension('./extensions/Better-Buy-Orders_v1.6.2.crx')
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
     driver = webdriver.Chrome(chrome_options=options)
-    driver.get('https://store.steampowered.com/login/?redir=&redir_ssl=1')
+    driver.get('https://steamcommunity.com')
     input('ENTER to continue')
 
     return driver
@@ -90,10 +92,10 @@ def get_gem_price(driver):
     return float(price_t[0][1])
 def get_gem_count(length):
     # card_len : gem_count
-    table = {13:462,10:600,9:667, 8:750,7:857,6:1000,5:1200}
+    table = {13:462,11:545,10:600,9:667, 8:750,7:857,6:1000,5:1200}
     try : 
         return table[length]
-    except exception as e:
+    except Exception as e:
         print(e)
         return 100000000
 

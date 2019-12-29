@@ -34,7 +34,7 @@ def results():
 	price_list = [i for i in price_list if i['sell_price'] > 0]
 	card_avg = cal_avg(price_list)
 	gem_price = get_gem_price(driver)
-	gem_count = get_gem_count(len(price_list)/2)
+	gem_count = get_gem_count(len(price_list))
 	return render_template('result.html',appid=appid, 
 		price_list = price_list, card_avg = card_avg, gem_price = gem_price,gem_count=gem_count, tax_rate = tax_rate)
 

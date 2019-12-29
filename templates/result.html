@@ -17,12 +17,12 @@
       平均單卡稅後販售價格(不含負價格商品): NT$ {{'%0.2f'| format( card_avg) }} <p></span>
         <span style="font-weight:bold;">
       平均單卡包收入(扣稅): NT$ {{'%0.2f'| format( card_avg*3) }} <br>
-      平均單卡包營收: NT$ {{'%0.2f'| format( card_avg*3) }} <br>
+      平均單卡包營收: NT$ {{'%0.2f'| format( card_avg*3-gem_price*gem_count/1000) }} <br>
       </span>
     </div>
 
     <div>
-      <table border=1 width="2000">
+      <table border=1 >
       <tr>
         <td> 卡片名稱</td>
         <td>最低售價(未稅)</td>
