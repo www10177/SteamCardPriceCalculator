@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tw">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ appid }}</title>
+  </head>
+  <body>
+    <h1>Not reponsible for results, use it at your own risk</h1>
+    <p>本站仍在開發階段，計算結果可能有誤</p>
+
+    <div>
+      <span>APPID : {{appid}}  </span>
+      <span>寶珠價格: NT$ {{ gem_price }}</span>
+      <span>普卡平均單卡價格(扣手續費後): NT$ {{ card_avg }} </span>
+  
+    </div>
+    <div>
+      <table border=1 width="300">
+      <tr>
+        <td> 卡片名稱</td>
+        <td>價格(未扣手續費)</td>
+        <td>價格(扣手續費)</td>
+      </tr>
+            {% for price in price_list %}
+      <tr>
+       <td><a href="{{ price["link"] }}">{{ price["name"] | safe }}</a></td>
+       <td>{{ price["sell_price_with_fee"] }}</td>
+       <td>{{ price["sell_price_without_fee"] }}</td>
+      </tr>
+     {% endfor %}
+
+    </table>
+    </div>
+</form>
+  </body>
+</html>

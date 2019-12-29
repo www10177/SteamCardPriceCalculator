@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="tw">
+  <head>
+    <meta charset="utf-8">
+    <title>SteamCardPriceCalculator</title>
+  </head>
+  <body>
+    <h1>Not reponsible for results, use it at your own risk</h1>
+    <p>本站仍在開發階段，計算結果可能有誤</p>
+    <div>
+    <form action="{{ url_for('results') }}" method="POST">
+    <span>APPID: </span>
+    <input name="appid">
+    <input type="submit">
+    <div><span>APPID: 遊戲網址內的那串數字,</span>
+    <span> ex: https://store.steampowered.com/app/960170/DJMAX_RESPECT_V/ -> APPID = 960170</span> </div>
+    </div>
+</form>
+  </body>
+</html>
