@@ -1,59 +1,46 @@
-import requests
-from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.support.ui import Select
+import re
+from urllib.parse import unquote
 import requests
-import browser_cookie3
-import steam.webauth as wa
-def get_session():
-    username = input('Please Enter User Name')
-    password = input('Please Enter Password')
-    captcha=None
-    twofactor=None
-    print(username,password)
+def load_driver():
+    options = webdriver.ChromeOptions()
+    options.add_extension('./extensions/Better-Buy-Orders_v1.6.2.crx')
+    driver = webdriver.Chrome(chrome_options=options)
+    driver.get('https://store.steampowered.com/login/?redir=&redir_ssl=1')
+    input('ENTER to continue')
+
+    return driver
+
+def get_price_tuple(link,driver):
+    driver.get(link)
+    select = Select(driver.find_element_by_id('currency_buyorder'))
+    select.select_by_value('30')
+    sell_ele = driver.find_element_by_id('market_commodity_forsale')
+    buy_ele = driver.find_element_by_id('market_commodity_buyrequests')
     while True:
-        try:
-            user = wa.WebAuth(username,password)
-        except (wa.CaptchaRequired, wa.LoginIncorrect) as exp:
-            print(exp)
-            if isinstance(exp, LoginIncorrect):
-                password = input('Please Enter Correct Password')
-            if isinstance(exp, wa.CaptchaRequired):
-                print('Please Solve Captcha')
-                print (user.captcha_url)
-            else:
-                print('other exceptiion')
-                captcha = None
-        else:
+        if 'NT' in buy_ele.text:
             break
-    while True:
-        twofactor =  input('Please Enter TwoFactorCode')
-        user.login(twofactor_code= twofactor)
-        break
-        try:
-            user.login(twofactor_code= twofactor)
-        except wa.TwoFactorCodeRequired:
-            twofactor = input('Please Enter TwoFactorCode')
-        except exceptiion as e:
-            print(e)
-        else:
-            print('Login Success')
-            break
-    return user.session
+    print(sell_ele.text)
+    print(buy_ele.text)
+    reg = r'(\d*).*NT\$ (\d*.\d*) .*'
+    sell_re = re.search(reg,sell_ele.text).groups()
+    buy_re = re.search(reg,buy_ele.text).groups()
+    return (sell_re,buy_re)
 
 
-def strip_price(s):
-    s = s.strip()
-    s = s.replace(',','')
-    s= s.replace('NT$','')
-    return float(s)
-def get_price(appid,sess):
 
+
+
+
+
+def get_price(appid,driver):
     #Url Setup
     exchange_url  ='https://www.steamcardexchange.net/index.php?gamepage-appid-{appid}'
-    ua = UserAgent()
-    headers = {'User-Agent': ua.chrome}
+
     #Requests
-    req = requests.get(exchange_url.format(appid=appid),headers=headers)
+    req=requests.get(exchange_url.format(appid=appid))
 
     #Parse HTML
     card_link_list = []
@@ -66,69 +53,49 @@ def get_price(appid,sess):
                 card_link_list.append(a.get('href'))
 
     #Get Card Price from steam market
-    currency_str = '/render?start=0&count=10&currency=30&format=json'
     price_list = []
     #print(card_link_list)
 
     for link in card_link_list:
-        marketname = link.split('/')[-1]
+        marketname = unquote(link.split('/')[-1])
         d = {'name':marketname,'link':link}
-        print(link+currency_str)
-        req  = sess.get(link+currency_str,headers=headers)
-        json = req.json()
         if 'Foil' in marketname:
-            '''
-            d['sell_price_with_fee'] = -1
-            d['sell_price_without_fee'] = -1
-            price_list.append(d)
-
-            continue
-            '''
-            pass
-        #print(json)
-        try :
-            html = json['results_html']
-            soup = BeautifulSoup(html,'html.parser')
-            price = soup.find('span',class_='market_listing_price market_listing_price_with_fee')
-            d['sell_price_with_fee'] = strip_price(price.get_text())
-            price = soup.find('span',class_='market_listing_price market_listing_price_without_fee')
-            d['sell_price_without_fee'] = strip_price(price.get_text())
-        except Exception as e:
-            print(e)
-            print('GET_PRICE:link parse except')
-            d['sell_price_with_fee'] = -1
-            d['sell_price_without_fee'] = -1
+            d['sell_price'] = -99
+            d['sell_vol'] = -99
+            d['buy_price']=-99
+            d['buy_vol']=-99
+        else:
+            price_tuple = get_price_tuple(link,driver)
+            d['sell_vol'] = int(price_tuple[0][0])
+            d['sell_price'] = float(price_tuple[0][1])
+            d['buy_vol']=int(price_tuple[1][0])
+            d['buy_price']=float(price_tuple[1][1])
         price_list.append(d)
-
-        #Get 24hr Volume
-        #req  = requests.get(link,headers=headers)
-        #soup = BeautifulSoup(req.text,'html.parser')
-        #for div in soup.find_all('div',class_='es_sold_amount'):
-        #   print(div)
     return price_list
 def cal_avg(price_list) :
     #Input: price_list from get_price
     #Return:price_tuple(with fee,without fee) (Sum of not foil card only)
-    price_list = [i for i in price_list if 'Foil' not in i['name']]
-    without_fee,with_fee = 0.0,0.0
+    price_list = [i for i in price_list if i['sell_price'] > 0]
+    sell_price,buy_price = 0.0,0.0
     for item in price_list:
-        with_fee+= item['sell_price_with_fee']
-        without_fee += item['sell_price_without_fee']
+        sell_price+= item['buy_price']
+        buy_price += item['sell_price']
     l = len(price_list)
-    return without_fee/l
+    return sell_price/l
 
-def get_gem_price(sess):
+def get_gem_price(driver):
     #Return Gem price(float)
-    try :
-        ua = UserAgent()
-        headers = {'User-Agent': ua.chrome}
-        url = r'https://steamcommunity.com/market/listings/753/753-Sack%20of%20Gems/render?start=0&count=10&currency=30&format=json'
-        req  = sess.get(url,headers=headers)
-        html = req.json()['results_html']
-        soup = BeautifulSoup(html,'html.parser')
-        price = soup.find('span',class_='market_listing_price market_listing_price_with_fee')
-        return strip_price(price.get_text())
-    except Exception as e :
+    url = r'https://steamcommunity.com/market/listings/753/753-Sack%20of%20Gems'
+    price_t = get_price_tuple(url,driver)
+    return float(price_t[0][1])
+def get_gem_count(length):
+    # card_len : gem_count
+    table = {13:462,10:600,9:667, 8:750,7:857,6:1000,5:1200}
+    try : 
+        return table[length]
+    except exception as e:
         print(e)
-        return -1
+        return 100000000
+
+
 

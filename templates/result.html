@@ -6,27 +6,42 @@
   </head>
   <body>
     <h1>Not reponsible for results, use it at your own risk</h1>
-    <p>本站仍在開發階段，計算結果可能有誤</p>
+    <br>本站仍在開發階段，計算結果可能有誤</br>
 
     <div>
-      <span>APPID : {{appid}}  </span>
-      <span>寶珠價格: NT$ {{ gem_price }}</span>
-      <span>普卡平均單卡價格(扣手續費後): NT$ {{ card_avg }} </span>
-  
+      <span><a href="https://www.steamcardexchange.net/index.php?gamepage-appid-{{ appid }}">APPID : {{appid}}</a>  </span>
+      <p>steam稅率設定 :  {{ tax_rate }}</p>
+      <span>一袋寶珠價格: NT$ {{ '%0.2f'| format( gem_price)  }}<br>
+        所需寶珠數: {{gem_count}}<br>
+        所需寶珠成本:NT$ {{'%0.2f'| format( gem_price*gem_count/1000)}}<br>
+      平均單卡稅後販售價格(不含負價格商品): NT$ {{'%0.2f'| format( card_avg) }} <p></span>
+        <span style="font-weight:bold;">
+      平均單卡包收入(扣稅): NT$ {{'%0.2f'| format( card_avg*3) }} <br>
+      平均單卡包營收: NT$ {{'%0.2f'| format( card_avg*3) }} <br>
+      </span>
     </div>
+
     <div>
-      <table border=1 width="300">
+      <table border=1 width="2000">
       <tr>
         <td> 卡片名稱</td>
-        <td>價格(未扣手續費)</td>
-        <td>價格(扣手續費)</td>
+        <td>最低售價(未稅)</td>
+        <td>最低售價(扣稅後)</td>
+        <td>賣方掛單數量</td>
+        <td>最高買價</td>
+        <td>買方掛單數量</td>
+
       </tr>
             {% for price in price_list %}
       <tr>
-       <td><a href="{{ price["link"] }}">{{ price["name"] | safe }}</a></td>
-       <td>{{ price["sell_price_with_fee"] }}</td>
-       <td>{{ price["sell_price_without_fee"] }}</td>
+       <td><a href="{{ price['link'] }}">{{ price["name"] | safe }}</a></td>
+       <td>{{ price["sell_price"] }}</td>
+       <td>{{ '%.02f' | format(price["sell_price"] * tax_rate)}}</td>
+       <td>{{ price["sell_vol"]}}</td>
+       <td>{{ price["buy_price"] }}</td>
+       <td>{{ price["buy_vol"]}}</td>
       </tr>
+
      {% endfor %}
 
     </table>

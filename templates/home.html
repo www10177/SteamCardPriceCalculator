@@ -5,15 +5,17 @@
     <title>SteamCardPriceCalculator</title>
   </head>
   <body>
-    <h1>Not reponsible for results, use it at your own risk</h1>
+    <h1>Not responsible for results, use it at your own risk</h1>
     <p>本站仍在開發階段，計算結果可能有誤</p>
+    <p>目前爬取架構採用selenium, 每次查詢可能需等待15-30sec為正常的</p>
+    <p>並且如果很多人在用速度會更慢，請耐心等待QQ</p>
     <div>
     <form action="{{ url_for('results') }}" method="POST">
     <span>APPID: </span>
     <input name="appid">
     <input type="submit">
-    <div><span>APPID: 遊戲網址內的那串數字,</span>
-    <span> ex: https://store.steampowered.com/app/960170/DJMAX_RESPECT_V/ -> APPID = 960170</span> </div>
+    <div><span>APPID: 遊戲網址內的那串數字<br>
+    ex: https://store.steampowered.com/app/960170/DJMAX_RESPECT_V/ <br>-> APPID = 960170</span> 
     </div>
 </form>
   </body>
