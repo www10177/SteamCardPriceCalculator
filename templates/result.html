@@ -40,7 +40,7 @@
             {% for price in price_list %}
       <tr>
        <td><a href="{{ price['link'] }}">{{ price["name"] | safe }}</a></td>
-       <td>{{ price["sell_vol"] }}</td>
+       <td>{{ price["24hr_sell_vol"] }}</td>
        <td>{{ price["sell_price"] }}</td>
        <td>{{ '%.02f' | format(price["sell_price"] * tax_rate)}}</td>
        <td>{{ price["sell_vol"]}}</td>

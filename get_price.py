@@ -11,7 +11,7 @@ def load_driver():
     options.add_extension('./extensions/Augmented Steam1.3.crx')
     options.add_argument("user-data-dir=selenium")
     prefs = {"profile.managed_default_content_settings.images": 2}
-    #options.add_experimental_option("prefs", prefs)
+    options.add_experimental_option("prefs", prefs)
     driver = webdriver.Chrome(chrome_options=options)
     driver.get('https://steamcommunity.com')
     input('ENTER to continue')
@@ -34,13 +34,15 @@ def get_price_tuple(link,driver):
     buy_re = re.search(reg,buy_ele.text).groups()
     return (sell_re,buy_re)
 def get_sell_vol(driver):
-    try :
-        div = driver.find_element_by_class_name('es_sold_amount')
-        amount = div.find_element_by_css_selector('span').text
-        return int(amount.replace(',',''))
-    except Exception as e:
-        print(e)
-        return -99
+    ## make sure get sold_amount
+    for i in range(3):
+        try :
+            div = driver.find_element_by_class_name('es_sold_amount')
+            amount = div.find_element_by_css_selector('span').text
+            return int(amount.replace(',',''))
+        except Exception as e:
+            print(e)
+    return -99
 
 def get_info(appid,driver):
     sleep_time=0.5
@@ -82,7 +84,7 @@ def get_info(appid,driver):
             d['sell_price'] = float(price_tuple[0][1])
             d['buy_vol']=int(price_tuple[1][0])
             d['buy_price']=float(price_tuple[1][1])
-            d['sell_vol']=get_sell_vol(driver)
+            d['24hr_sell_vol']=get_sell_vol(driver)
         price_list.append(d)
     return_dict['price_list']=price_list
     return return_dict
