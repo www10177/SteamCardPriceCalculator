@@ -14,9 +14,9 @@ def init_var():
 	driver = load_driver()
 
 class CustomServer(Server):
-    def __call__(self, app, *args, **kwargs):
-        init_var()
-        return Server.__call__(self, app, *args, **kwargs)
+	def __call__(self, app, *args, **kwargs):
+		init_var()
+		return Server.__call__(self, app, *args, **kwargs)
 
 app = Flask(__name__)
 manager = Manager(app)
@@ -30,12 +30,14 @@ def main_page():
 @app.route('/results',methods=['GET','POST'])
 def results():
 	appid=request.values['appid']
-	price_list = get_price(appid,driver)
+	info_dict= get_info(appid,driver)
+	price_list = info_dict['price_list']
 	price_list = [i for i in price_list if i['sell_price'] > 0]
-	card_avg = cal_avg(price_list)
+	game_name = info_dict['game_name']
+	card_avg = tax_rate*cal_avg(price_list) ## Cal price after tax
 	gem_price = get_gem_price(driver)
 	gem_count = get_gem_count(len(price_list))
-	return render_template('result.html',appid=appid, 
+	return render_template('result.html',appid=appid, game_name = game_name,
 		price_list = price_list, card_avg = card_avg, gem_price = gem_price,gem_count=gem_count, tax_rate = tax_rate)
 
 

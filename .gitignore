@@ -2,3 +2,7 @@ __pycache__
 build
 dist
 *.txt
+chromedriver.exe
+*.log
+*.pyc
+selenium
